@@ -36,42 +36,26 @@ class KalmanFilter(object):
                             [0, (self.dt**4)/4, 0, (self.dt**3)/2],
                             [(self.dt**3)/2, 0, (self.dt**2), 0],
                             [0, (self.dt**3)/2, 0, (self.dt**2)]]) * stdacc**2
-        #Computing variance
-        #self.Q = np.matrix([[(np.var(self.x[0][0], self.x[0][0])), 0, np.dot(np.var(self.x[0][0]), np.var(self.x[0][2])), 0],
-        #                    [0, (np.var(self.x[0][1], self.x[0][1])), 0, np.var(self.x[0][1], self.x[0][3])],
-        #                    [np.var(self.x[0][0], self.x[0][2]), 0, (np.var(self.x[0][2], self.x[0][2])), 0],
-        #                    [0, (np.dot(np.var(self.x[0][3]), self.x[0][1])), 0, (np.var(self.x[0][3], self.x[0][3]))]])
+       
         self.R = np.matrix([[xstdmeas**2, 0],
                             [0, ystdmeas**2]])
-        #Computing new variance
-        #self.R = np.matrix([[(np.var(self.x[0][0], self.x[0][0])), 0],
-        #                    [0, (np.var(self.x[0][1], self.x[0][1]))]])
-
 
         #Initial Covariance Matrix
         self.P = np.eye(self.A.shape[1])
 
     def predict(self):
         #Update time state xk = Axk-1 + Bak-1 
-        #Fcuk noise
-        self.x = np.dot(self.A, self.x) + np.dot(self.B, self.u)
+        #WITHOUT B
+        print("Predicting :)")
+        self.x = np.dot(self.A, self.x) #+ np.dot(self.B, self.u)
 
-        #Recalculate Q
-        #self.Q = np.matrix([[(np.var(self.x[0][0], self.x[0][0])), 0, np.dot(np.var(self.x[0][0]), np.var(self.x[0][2])), 0],
-        #                    [0, (np.var(self.x[0][1], self.x[0][1])), 0, np.var(self.x[0][1], self.x[0][3])],
-        #                    [np.var(self.x[0][0], self.x[0][2]), 0, (np.var(self.x[0][2], self.x[0][2])), 0],
-        #                    [0, (np.dot(np.var(self.x[0][3]), self.x[0][1])), 0, (np.var(self.x[0][3], self.x[0][3]))]])
-        
         #Calculate error covariance P = A*P*A' + Q
         self.P = np.dot(np.dot(self.A, self.P), self.A.T) + self.Q
-        
-        return self.x[0:2]
+        print(str(self.x))
+        return self.x, self.P
 
     def update(self, z):
-        #Calculate R
-        #self.R = np.matrix([[(np.var(z[0], z[0])), 0],
-        #                    [0, (np.var(z[1], z[1]))]])
-               
+        print("Updating :)")               
         #Ajuda escriure S = H*P*H' + R
         S = np.dot(self.H, np.dot(self.P, self.H.T)) + self.R
 
@@ -83,7 +67,8 @@ class KalmanFilter(object):
 
         #Update error covariance
         self.P = (I - (K * self.H)) * self.P
-        return self.x[0:2]
+        print(str(self.x))
+        return self.x
     
 
 
